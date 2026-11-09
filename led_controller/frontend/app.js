@@ -4,7 +4,18 @@ const state = {
   macros: [],
   editingMacroId: null,
   macroBlocks: [],
+  powerOn: false,
 };
+
+const viewTitles = {
+  scan: 'Dispositivi',
+  control: 'Controlli',
+  scenes: 'Scene',
+  macro: 'Macro studio',
+  protocol: 'Test protocollo',
+};
+
+let toastTimer;
 
 const api = {
   async get(path) {
@@ -42,6 +53,8 @@ async function readResponse(response) {
 }
 
 function setView(viewName) {
+  if (!viewTitles[viewName]) return;
+  document.getElementById('pageTitle').textContent = viewTitles[viewName];
   document.querySelectorAll('.nav-btn').forEach((btn) => {
     btn.classList.toggle('active', btn.dataset.view === viewName);
   });
@@ -51,6 +64,22 @@ function setView(viewName) {
   });
 }
 
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('visible');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => toast.classList.remove('visible'), 2800);
+}
+
+function setConnectionStatus(connected, name = '') {
+  const status = document.getElementById('connectionStatus');
+  if (!status) return;
+  status.classList.toggle('connected', connected);
+  status.lastElementChild.textContent = connected ? `Connesso${name ? ` · ${name}` : ''}` : 'Non connesso';
+}
+
 document.querySelectorAll('.nav-btn').forEach((btn) => {
   btn.addEventListener('click', () => setView(btn.dataset.view));
 });
@@ -58,24 +87,34 @@ document.querySelectorAll('.nav-btn').forEach((btn) => {
 function renderDevices(devices) {
   const list = document.getElementById('deviceList');
   if (!list) return;
+  const count = document.getElementById('deviceCount');
+  if (count) count.textContent = `${devices.length} ${devices.length === 1 ? 'dispositivo' : 'dispositivi'}`;
   list.innerHTML = devices.length
     ? devices.map((device) => `
       <div class="device-card">
         <div class="flex justify-between items-center">
           <div>
-            <div class="font-semibold">${device.name || 'Unknown'}</div>
-            <div class="text-xs text-slate-400">${device.protocol || 'unknown'} · ${device.mac || 'n/a'}</div>
+            <div class="font-semibold">${escapeHtml(device.name || 'Unknown')}</div>
+            <div class="text-xs text-slate-400">${escapeHtml(device.protocol || 'unknown')} · ${escapeHtml(device.mac || 'n/a')}</div>
           </div>
-          <button class="primary-btn small" data-mac="${device.mac}" data-name="${device.name}">Connect</button>
+          <button class="primary-btn small" data-mac="${escapeHtml(device.mac || '')}" data-name="${escapeHtml(device.name || '')}">Connetti</button>
         </div>
       </div>`).join('')
-    : '<div class="text-slate-400">No devices found.</div>';
+    : '<div class="text-slate-400">Nessun dispositivo trovato. Premi “Cerca dispositivi” per eseguire una scansione.</div>';
 
   list.querySelectorAll('button[data-mac]').forEach((button) => {
     button.addEventListener('click', async () => {
       const payload = { mac: button.dataset.mac, name: button.dataset.name };
-      const res = await api.post('/api/connect', payload);
-      console.log('Connected', res);
+      button.disabled = true;
+      try {
+        const res = await api.post('/api/connect', payload);
+        setConnectionStatus(true, res.name || payload.name);
+        showToast(`Connesso a ${res.name || payload.name}`);
+      } catch (error) {
+        showToast(`Connessione non riuscita: ${error.message}`);
+      } finally {
+        button.disabled = false;
+      }
     });
   });
 }
@@ -85,12 +124,17 @@ function renderEffects() {
   if (!grid) return;
   const effects = Array.from({ length: 22 }, (_, index) => index);
   grid.innerHTML = effects.map((effect) => `
-    <button class="effect-btn" data-effect="${effect}">${effect + 1}</button>
+    <button class="effect-btn" data-effect="${effect}" aria-label="Effetto ${effect + 1}">${effect + 1}</button>
   `).join('');
 
   grid.querySelectorAll('.effect-btn').forEach((button) => {
     button.addEventListener('click', async () => {
-      await api.post('/api/effect', { value: Number(button.dataset.effect) });
+      try {
+        await api.post('/api/effect', { value: Number(button.dataset.effect) });
+        grid.querySelectorAll('.effect-btn').forEach((item) => item.classList.toggle('selected', item === button));
+      } catch (error) {
+        showToast(error.message);
+      }
     });
   });
 }
@@ -101,24 +145,30 @@ async function loadScenes() {
   const list = document.getElementById('sceneList');
   list.innerHTML = scenes.map((scene) => `
     <div class="scene-card">
-      <div class="font-semibold">${scene.name}</div>
+      <div class="font-semibold">${escapeHtml(scene.name)}</div>
       <div class="text-xs text-slate-400">${scene.r}, ${scene.g}, ${scene.b}</div>
       <div class="mt-2 flex gap-2">
-        <button class="primary-btn small" data-apply="${scene.id}">Apply</button>
-        <button class="secondary-btn small" data-del="${scene.id}">Delete</button>
+        <button class="primary-btn small" data-apply="${escapeHtml(scene.id)}">Applica</button>
+        <button class="secondary-btn small" data-del="${escapeHtml(scene.id)}">Elimina</button>
       </div>
     </div>
-  `).join('');
+  `).join('') || '<p class="text-slate-400">Non hai ancora salvato scene.</p>';
 
   list.querySelectorAll('[data-apply]').forEach((button) => {
     button.addEventListener('click', async () => {
-      await api.post(`/api/scenes/${button.dataset.apply}/apply`);
+      try {
+        await api.post(`/api/scenes/${button.dataset.apply}/apply`);
+        showToast('Scena applicata.');
+      } catch (error) {
+        showToast(error.message);
+      }
     });
   });
   list.querySelectorAll('[data-del]').forEach((button) => {
     button.addEventListener('click', async () => {
       await api.del(`/api/scenes/${button.dataset.del}`);
       await loadScenes();
+      showToast('Scena eliminata.');
     });
   });
 }
@@ -150,8 +200,10 @@ async function loadMacros() {
       try {
         await api.post(`/api/macros/${button.dataset.play}/play`);
         setMacroStatus('Macro avviata.');
+        showToast('Macro avviata.');
       } catch (error) {
         setMacroStatus(error.message);
+        showToast(error.message);
       }
     });
   });
@@ -160,8 +212,10 @@ async function loadMacros() {
       try {
         await api.post(`/api/macros/${button.dataset.stop}/stop`);
         setMacroStatus('Macro fermata.');
+        showToast('Macro fermata.');
       } catch (error) {
         setMacroStatus(error.message);
+        showToast(error.message);
       }
     });
   });
@@ -207,7 +261,7 @@ function renderMacroBlocks() {
         ogni <input type="number" data-field="interval" min="0.1" max="10" step="0.1" value="${escapeHtml(block.interval ?? 0.5)}" aria-label="Intervallo flash in secondi" /> s`;
     }
 
-    return `<article class="macro-block" draggable="true" data-block-id="${escapeHtml(block.id)}">
+    return `<article class="macro-block" draggable="true" data-type="${escapeHtml(block.type)}" data-block-id="${escapeHtml(block.id)}">
       <div class="macro-block-top">
         <span class="macro-block-type">${block.type === 'color' ? '💡 Colore' : block.type === 'sleep' ? '⏱ Attesa' : '⚡ Flash'}</span>
         <div class="macro-block-actions">
@@ -325,9 +379,20 @@ document.getElementById('saveMacroBtn')?.addEventListener('click', async () => {
 });
 
 document.getElementById('scanBtn')?.addEventListener('click', async () => {
-  const devices = await api.post('/api/scan');
-  state.devices = devices;
-  renderDevices(devices);
+  const button = document.getElementById('scanBtn');
+  button.disabled = true;
+  button.innerHTML = '<span class="scan-spinner" aria-hidden="true"></span> Ricerca in corso';
+  try {
+    const devices = await api.post('/api/scan');
+    state.devices = devices;
+    renderDevices(devices);
+    showToast(devices.length ? `Trovati ${devices.length} dispositivi.` : 'Nessun dispositivo trovato.');
+  } catch (error) {
+    showToast(`Scansione non riuscita: ${error.message}`);
+  } finally {
+    button.disabled = false;
+    button.innerHTML = '<span aria-hidden="true">⌕</span> Cerca dispositivi';
+  }
 });
 
 document.getElementById('colorPicker')?.addEventListener('input', async (event) => {
@@ -336,39 +401,64 @@ document.getElementById('colorPicker')?.addEventListener('input', async (event) 
   const r = parseInt(numeric.substring(0, 2), 16);
   const g = parseInt(numeric.substring(2, 4), 16);
   const b = parseInt(numeric.substring(4, 6), 16);
-  await api.post('/api/color', { r, g, b });
+  document.getElementById('colorPreview').style.background = hex;
+  document.getElementById('colorHexLabel').textContent = hex.toUpperCase();
+  try { await api.post('/api/color', { r, g, b }); } catch (error) { showToast(error.message); }
 });
 
 document.getElementById('brightness')?.addEventListener('input', async (event) => {
-  await api.post('/api/brightness', { value: Number(event.target.value) });
+  document.getElementById('brightnessValue').value = event.target.value;
+  try { await api.post('/api/brightness', { value: Number(event.target.value) }); } catch (error) { showToast(error.message); }
 });
 
 document.getElementById('speed')?.addEventListener('input', async (event) => {
-  await api.post('/api/speed', { value: Number(event.target.value) });
+  document.getElementById('speedValue').value = event.target.value;
+  try { await api.post('/api/speed', { value: Number(event.target.value) }); } catch (error) { showToast(error.message); }
 });
 
 document.getElementById('colorTemp')?.addEventListener('input', async (event) => {
-  await api.post('/api/color_temp', { value: Number(event.target.value) });
+  document.getElementById('colorTempValue').value = event.target.value;
+  try { await api.post('/api/color_temp', { value: Number(event.target.value) }); } catch (error) { showToast(error.message); }
 });
 
 document.getElementById('powerBtn')?.addEventListener('click', async () => {
-  const enabled = document.getElementById('powerBtn').textContent.includes('ON');
-  document.getElementById('powerBtn').textContent = enabled ? 'Power OFF' : 'Power ON';
-  await api.post('/api/power', { on: !enabled });
+  const button = document.getElementById('powerBtn');
+  const enabled = !state.powerOn;
+  try {
+    await api.post('/api/power', { on: enabled });
+    state.powerOn = enabled;
+    button.innerHTML = `<span class="power-glyph">⏻</span> ${enabled ? 'Spegni' : 'Accendi'}`;
+    button.classList.toggle('is-on', enabled);
+    showToast(enabled ? 'Luce accesa.' : 'Luce spenta.');
+  } catch (error) {
+    showToast(error.message);
+  }
 });
 
 document.getElementById('musicBtn')?.addEventListener('click', async () => {
   const element = document.getElementById('musicBtn');
   const enabled = !element.classList.contains('is-on');
   element.classList.toggle('is-on', enabled);
-  await api.post('/api/music_sync', { enabled });
+  try {
+    await api.post('/api/music_sync', { enabled });
+    showToast(enabled ? 'Music sync attivato.' : 'Music sync disattivato.');
+  } catch (error) {
+    element.classList.toggle('is-on', !enabled);
+    showToast(error.message);
+  }
 });
 
 document.getElementById('sendHexBtn')?.addEventListener('click', async () => {
   const value = document.getElementById('hexInput').value;
   const log = document.getElementById('protocolLog');
-  const result = await api.post('/api/raw', { hex: value });
-  log.textContent = JSON.stringify(result, null, 2);
+  try {
+    const result = await api.post('/api/raw', { hex: value });
+    log.textContent = JSON.stringify(result, null, 2);
+    showToast('Frame inviato.');
+  } catch (error) {
+    log.textContent = error.message;
+    showToast(error.message);
+  }
 });
 
 renderEffects();
@@ -377,4 +467,8 @@ loadMacros();
 api.get('/api/devices').then((devices) => {
   state.devices = devices;
   renderDevices(devices);
+}).catch((error) => showToast(`Impossibile caricare i dispositivi: ${error.message}`));
+
+document.getElementById('macroName')?.addEventListener('input', () => {
+  if (state.editingMacroId) setMacroStatus('Modifiche non salvate.');
 });

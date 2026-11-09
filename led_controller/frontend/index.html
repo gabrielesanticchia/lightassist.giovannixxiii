@@ -3,108 +3,111 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>LED Strip Controller</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <meta name="theme-color" content="#090d18" />
+    <title>LightAssist — LED Studio</title>
     <link rel="stylesheet" href="/static/style.css" />
   </head>
-  <body class="bg-slate-950 text-slate-100 min-h-screen">
-    <div class="flex min-h-screen">
-      <aside class="w-72 bg-slate-900 border-r border-slate-800 p-4">
-        <h1 class="text-2xl font-bold mb-4">LightAssist</h1>
-        <nav class="space-y-2">
-          <button class="nav-btn active" data-view="scan">Scan</button>
-          <button class="nav-btn" data-view="control">Control</button>
-          <button class="nav-btn" data-view="scenes">Scenes</button>
-          <button class="nav-btn" data-view="macro">Macro</button>
-          <button class="nav-btn" data-view="protocol">Protocol Test</button>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="#" aria-label="LightAssist home">
+          <span class="brand-mark" aria-hidden="true">✦</span>
+          <span class="brand-copy"><strong>lightassist</strong><small>LED STUDIO</small></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="main-nav" aria-label="Navigazione principale">
+          <button class="nav-btn active" data-view="scan"><span class="nav-icon">⌕</span><span>Dispositivi</span><span class="nav-arrow">›</span></button>
+          <button class="nav-btn" data-view="control"><span class="nav-icon">◉</span><span>Controlli</span></button>
+          <button class="nav-btn" data-view="scenes"><span class="nav-icon">▦</span><span>Scene</span></button>
+          <button class="nav-btn" data-view="macro"><span class="nav-icon">⌘</span><span>Macro studio</span></button>
         </nav>
+
+        <div class="sidebar-label tools-label">STRUMENTI</div>
+        <nav class="main-nav" aria-label="Strumenti">
+          <button class="nav-btn" data-view="protocol"><span class="nav-icon">⌁</span><span>Test protocollo</span></button>
+        </nav>
+
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-footer">
+          <span class="footer-status-dot"></span>
+          <div><strong>Privato per design</strong><small>Nessun tracking</small></div>
+          <span class="footer-shield" aria-hidden="true">◈</span>
+        </div>
       </aside>
 
-      <main class="flex-1 p-6 overflow-auto">
-        <section id="scan" class="view-panel active">
-          <div class="card">
-            <div class="flex justify-between items-center mb-4">
-              <h2 class="text-xl font-semibold">Dispositivi BLE</h2>
-              <button id="scanBtn" class="primary-btn">Scan</button>
-            </div>
-            <div id="deviceList" class="space-y-2"></div>
+      <main class="main-area">
+        <header class="topbar">
+          <div class="breadcrumb"><span>LIGHTASSIST</span><span class="breadcrumb-slash">/</span><strong id="pageTitle">Dispositivi</strong></div>
+          <div class="topbar-right">
+            <span class="connection-pill" id="connectionStatus"><span class="status-dot"></span><span>Non connesso</span></span>
+            <span class="avatar" aria-label="LightAssist">L</span>
           </div>
-        </section>
+        </header>
 
-        <section id="control" class="view-panel hidden">
-          <div class="grid lg:grid-cols-2 gap-4">
-            <div class="card">
-              <h2 class="text-xl font-semibold mb-3">Controlli</h2>
-              <label class="block mb-2">Colore</label>
-              <input id="colorPicker" type="color" value="#ff0000" class="w-full h-12" />
-              <label class="block mt-4">Luminosità</label>
-              <input id="brightness" type="range" min="0" max="100" value="100" class="w-full" />
-              <label class="block mt-4">Velocità</label>
-              <input id="speed" type="range" min="0" max="100" value="50" class="w-full" />
-              <label class="block mt-4">Temperatura colore</label>
-              <input id="colorTemp" type="range" min="0" max="100" value="50" class="w-full" />
-              <div class="mt-4 flex gap-3">
-                <button id="powerBtn" class="primary-btn">Power ON</button>
-                <button id="musicBtn" class="secondary-btn">Music Sync</button>
+        <div class="content-area">
+          <section id="scan" class="view-panel active">
+            <div class="page-heading">
+              <div><div class="eyebrow">IL TUO SPAZIO LUCE</div><h1>Dispositivi</h1><p>Trova e collega le tue strisce LED Bluetooth.</p></div>
+              <button id="scanBtn" class="primary-btn"><span aria-hidden="true">⌕</span> Cerca dispositivi</button>
+            </div>
+            <div class="scan-banner">
+              <div class="banner-glow"></div>
+              <div class="banner-copy"><span class="banner-kicker">PRONTO A ILLUMINARE?</span><h2>La luce, come piace a te.</h2><p>Scansiona i dispositivi vicini e inizia a creare la tua atmosfera.</p></div>
+              <div class="banner-art" aria-hidden="true"><span class="orb orb-one"></span><span class="orb orb-two"></span><span class="orb orb-three"></span><span class="orb-core">✦</span></div>
+            </div>
+            <div class="section-heading"><div><h2>Dispositivi disponibili</h2><p>Seleziona una striscia per iniziare</p></div><span class="section-count" id="deviceCount">0 dispositivi</span></div>
+            <div id="deviceList" class="device-grid"></div>
+          </section>
+
+          <section id="control" class="view-panel hidden">
+            <div class="page-heading"><div><div class="eyebrow">CONTROLLO LIVE</div><h1>Controlli</h1><p>Regola colore, intensità e movimento.</p></div><span class="live-badge"><span class="status-dot"></span> Live control</span></div>
+            <div class="control-layout">
+              <div class="card control-card">
+                <div class="card-heading"><div><span class="card-icon color-icon">◉</span><div><h2>Colore e intensità</h2><p>Scegli il tono perfetto</p></div></div></div>
+                <div class="color-preview"><div class="preview-swatch" id="colorPreview"></div><div><span class="preview-label">COLORE ATTUALE</span><strong id="colorHexLabel">#FF3B6B</strong></div><input id="colorPicker" type="color" value="#ff3b6b" aria-label="Scegli colore" /></div>
+                <div class="slider-field"><div class="field-heading"><label for="brightness">Luminosità</label><span><output id="brightnessValue">100</output><small>%</small></span></div><input id="brightness" type="range" min="0" max="100" value="100" /></div>
+                <div class="slider-field"><div class="field-heading"><label for="colorTemp">Temperatura colore</label><span><output id="colorTempValue">50</output><small>%</small></span></div><input id="colorTemp" type="range" min="0" max="100" value="50" /></div>
+                <div class="control-actions"><button id="powerBtn" class="primary-btn power-button"><span class="power-glyph">⏻</span> Accendi</button><button id="musicBtn" class="secondary-btn"><span>♫</span> Music sync</button></div>
+              </div>
+              <div class="card control-card effects-card">
+                <div class="card-heading"><div><span class="card-icon effects-icon">✳</span><div><h2>Effetti dinamici</h2><p>Dai movimento alla tua luce</p></div></div><span class="effects-count">22</span></div>
+                <div id="effectsGrid" class="effects-grid"></div>
+                <div class="slider-field speed-field"><div class="field-heading"><label for="speed">Velocità effetto</label><span><output id="speedValue">50</output><small>%</small></span></div><input id="speed" type="range" min="0" max="100" value="50" /></div>
               </div>
             </div>
-            <div class="card">
-              <h2 class="text-xl font-semibold mb-3">Effetti</h2>
-              <div id="effectsGrid" class="grid grid-cols-4 gap-2"></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="scenes" class="view-panel hidden">
-          <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Scenes</h2>
-            <div id="sceneList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
-          </div>
-        </section>
+          <section id="scenes" class="view-panel hidden">
+            <div class="page-heading"><div><div class="eyebrow">ATMOSFERE SALVATE</div><h1>Scene</h1><p>I tuoi preset, pronti con un tocco.</p></div></div>
+            <div id="sceneList" class="scene-grid"></div>
+          </section>
 
-        <section id="macro" class="view-panel hidden">
-          <div class="grid xl:grid-cols-[minmax(0,2fr)_minmax(260px,1fr)] gap-4">
-            <div class="card">
-              <div class="flex flex-wrap justify-between items-center gap-3 mb-4">
-                <div>
-                  <h2 class="text-xl font-semibold">Editor a blocchi</h2>
-                  <p class="text-sm text-slate-400 mt-1">Componi la sequenza, modifica i parametri e trascina i blocchi per riordinarli.</p>
-                </div>
-                <div class="flex gap-2">
-                  <button id="newMacroBtn" class="secondary-btn">Nuova</button>
-                  <button id="saveMacroBtn" class="primary-btn">Salva macro</button>
-                </div>
+          <section id="macro" class="view-panel hidden">
+            <div class="page-heading"><div><div class="eyebrow">CREA UNA SEQUENZA</div><h1>Macro studio</h1><p>Combina blocchi per dare ritmo e colore alla tua luce.</p></div><span class="studio-badge">✦ STUDIO</span></div>
+            <div class="macro-layout">
+              <div class="card editor-card">
+                <div class="editor-heading"><div><span class="card-overline">EDITOR VISUALE</span><h2>La tua sequenza</h2></div><div class="editor-actions"><button id="newMacroBtn" class="secondary-btn">Nuova</button><button id="saveMacroBtn" class="primary-btn">Salva macro</button></div></div>
+                <label for="macroName" class="input-label">Nome della macro</label>
+                <input id="macroName" class="macro-name-input" type="text" maxlength="80" placeholder="Es. Tramonto lento" />
+                <div class="block-toolbar-label">AGGIUNGI UN BLOCCO</div>
+                <div class="macro-block-tools" aria-label="Aggiungi blocco"><button class="block-add-btn add-color" data-add-block="color"><span>◉</span> Colore</button><button class="block-add-btn add-sleep" data-add-block="sleep"><span>◷</span> Attesa</button><button class="block-add-btn add-flash" data-add-block="flash"><span>✳</span> Flash</button></div>
+                <div id="macroBlocks" class="macro-block-list" aria-live="polite"></div>
+                <p id="macroEditorStatus" class="editor-status" role="status"></p>
               </div>
-              <label for="macroName" class="block text-sm mb-1">Nome macro</label>
-              <input id="macroName" class="macro-name-input mb-4" type="text" maxlength="80" placeholder="Es. Atmosfera blu" />
-              <div class="macro-block-tools" aria-label="Aggiungi blocco">
-                <button class="block-add-btn" data-add-block="color">＋ Colore per...</button>
-                <button class="block-add-btn" data-add-block="sleep">＋ Attesa</button>
-                <button class="block-add-btn" data-add-block="flash">＋ Flash</button>
-              </div>
-              <div id="macroBlocks" class="macro-block-list" aria-live="polite"></div>
-              <p id="macroEditorStatus" class="mt-3 text-sm text-slate-400" role="status"></p>
+              <aside class="card saved-macros-card"><div class="saved-heading"><div><span class="card-overline">LA TUA LIBRERIA</span><h2>Macro salvate</h2></div><span class="library-icon">▤</span></div><div id="macroList" class="saved-macro-list"></div><div class="library-tip"><span>✦</span><p>Seleziona il nome di una macro per continuare a modificarla.</p></div></aside>
             </div>
-            <div class="card">
-              <h2 class="text-xl font-semibold mb-3">Macro salvate</h2>
-              <div id="macroList" class="space-y-2"></div>
-            </div>
-          </div>
-        </section>
+          </section>
 
-        <section id="protocol" class="view-panel hidden">
-          <div class="card">
-            <h2 class="text-xl font-semibold mb-3">Protocol Test</h2>
-            <textarea id="hexInput" class="w-full h-40 rounded-lg bg-slate-900 p-3 text-slate-100" placeholder="7E 00 04 F0 00 01 FF 00 EF"></textarea>
-            <div class="mt-4 flex gap-3">
-              <button id="sendHexBtn" class="primary-btn">Send</button>
-            </div>
-            <div id="protocolLog" class="mt-4 bg-slate-900 rounded-lg p-3 min-h-24 text-sm text-slate-300"></div>
-          </div>
-        </section>
+          <section id="protocol" class="view-panel hidden">
+            <div class="page-heading"><div><div class="eyebrow">STRUMENTI AVANZATI</div><h1>Test protocollo</h1><p>Invia un frame personalizzato al dispositivo connesso.</p></div></div>
+            <div class="card protocol-card"><div class="card-heading"><div><span class="card-icon effects-icon">⌁</span><div><h2>Invio frame HEX</h2><p>Usa questa funzione per test e debug.</p></div></div></div><label class="input-label" for="hexInput">FRAME</label><textarea id="hexInput" placeholder="7E 00 04 F0 00 01 FF 00 EF"></textarea><div class="protocol-actions"><span>Inserisci byte esadecimali separati da spazi.</span><button id="sendHexBtn" class="primary-btn">Invia frame <span>↗</span></button></div><pre id="protocolLog" class="protocol-log">La risposta del dispositivo apparirà qui.</pre></div>
+          </section>
+        </div>
+        <footer class="main-footer"><span>LIGHTASSIST</span><span>Controllo luce, fatto tuo.</span></footer>
       </main>
     </div>
-
+    <div id="toast" class="toast" role="status" aria-live="polite"></div>
     <script src="/static/app.js"></script>
   </body>
 </html>
