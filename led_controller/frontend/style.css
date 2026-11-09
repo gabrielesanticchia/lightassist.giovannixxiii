@@ -19,6 +19,120 @@ body {
   padding: 0.75rem 1rem;
 }
 
+.macro-name-input,
+.macro-block-controls input[type="number"] {
+  border: 1px solid rgba(148, 163, 184, 0.25);
+  border-radius: 0.55rem;
+  background: #0f172a;
+  color: #f1f5f9;
+  padding: 0.55rem 0.7rem;
+}
+
+.macro-name-input {
+  width: 100%;
+}
+
+.macro-block-tools {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.block-add-btn {
+  border: 1px solid rgba(96, 165, 250, 0.35);
+  border-radius: 0.65rem;
+  background: rgba(37, 99, 235, 0.13);
+  color: #bfdbfe;
+  padding: 0.55rem 0.8rem;
+}
+
+.macro-block-list {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.macro-block {
+  border: 1px solid rgba(96, 165, 250, 0.3);
+  border-left: 4px solid #3b82f6;
+  border-radius: 0.85rem;
+  background: rgba(15, 23, 42, 0.95);
+  padding: 0.8rem;
+}
+
+.macro-block[draggable="true"] {
+  cursor: grab;
+}
+
+.macro-block-top,
+.macro-block-actions {
+  align-items: center;
+  display: flex;
+  gap: 0.4rem;
+  justify-content: space-between;
+}
+
+.macro-block-type {
+  color: #bfdbfe;
+  font-weight: 650;
+}
+
+.macro-block-actions {
+  justify-content: flex-end;
+}
+
+.block-move-btn,
+.block-remove-btn {
+  border-radius: 0.45rem;
+  background: #1e293b;
+  color: #e2e8f0;
+  min-width: 2rem;
+  padding: 0.25rem 0.45rem;
+}
+
+.block-remove-btn {
+  color: #fca5a5;
+  padding-inline: 0.6rem;
+}
+
+.block-move-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.35;
+}
+
+.macro-block-controls {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+
+.macro-block-controls input[type="number"] {
+  width: 5.2rem;
+}
+
+.macro-block-controls input[type="color"] {
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.45rem;
+  height: 2rem;
+  padding: 0.15rem;
+  width: 2.8rem;
+}
+
+.macro-empty {
+  border: 1px dashed rgba(148, 163, 184, 0.3);
+  border-radius: 0.8rem;
+  color: #94a3b8;
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.macro-load-btn {
+  color: #e2e8f0;
+  text-align: left;
+}
+
 .nav-btn,
 .primary-btn,
 .secondary-btn,

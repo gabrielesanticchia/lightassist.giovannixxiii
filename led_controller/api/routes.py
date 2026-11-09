@@ -148,8 +148,25 @@ def create_app(simulate: bool = False) -> FastAPI:
         macros = read_macros()
         for macro in macros:
             if macro.id == macro_id:
-                await macro_runner.run(macro.to_dict())
+                try:
+                    macro_runner.start(macro.to_dict())
+                except RuntimeError as exc:
+                    raise HTTPException(status_code=409, detail=str(exc)) from exc
+                except ValueError as exc:
+                    raise HTTPException(status_code=422, detail=str(exc)) from exc
                 return {"status": "playing", "id": macro_id}
+        raise HTTPException(status_code=404, detail="Macro not found")
+
+    @app.put("/api/macros/{macro_id}")
+    async def update_macro(macro_id: str, payload: Dict[str, Any]) -> Dict[str, Any]:
+        macros = read_macros()
+        for index, macro in enumerate(macros):
+            if macro.id == macro_id:
+                payload["id"] = macro_id
+                updated = Macro(**payload)
+                macros[index] = updated
+                write_macros(macros)
+                return updated.to_dict()
         raise HTTPException(status_code=404, detail="Macro not found")
 
     @app.post("/api/macros/{macro_id}/stop")
@@ -159,7 +176,7 @@ def create_app(simulate: bool = False) -> FastAPI:
 
     @app.get("/api/macros/{macro_id}/status")
     async def macro_status(macro_id: str) -> Dict[str, Any]:
-        return {"status": "idle", "id": macro_id}
+        return {"status": "running" if macro_runner.running else "idle", "id": macro_id}
 
     @app.post("/api/raw")
     async def raw(payload: Dict[str, Any]) -> Dict[str, Any]:

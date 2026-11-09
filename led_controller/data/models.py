@@ -47,7 +47,13 @@ class Scene(ModelBase):
 
 class MacroStep(ModelBase):
     id: str = Field(default="")
+    type: str = Field(default="color")
     name: str = Field(default="Step")
+    duration: float = Field(default=5)
+    color: str = Field(default="#0000ff")
+    from_color: str = Field(default="#ffffff")
+    to_color: str = Field(default="#0000ff")
+    interval: float = Field(default=0.5)
     delay_ms: int = Field(default=1000)
     r: int = Field(default=255)
     g: int = Field(default=0)
@@ -59,7 +65,7 @@ class MacroStep(ModelBase):
 class Macro(ModelBase):
     id: str = Field(default="")
     name: str = Field(default="Macro")
-    steps: List[MacroStep] = Field(default_factory=list)
+    steps: List[Dict[str, Any]] = Field(default_factory=list)
     loop: bool = Field(default=False)
 
 

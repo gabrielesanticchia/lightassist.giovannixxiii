@@ -12,9 +12,7 @@ class LedConnectionManager:
     def __init__(self, simulate: bool = False):
         self.simulate = simulate
         self.connected_device: Optional[FakeLedDevice] = None
-        self.devices = [DeviceInfo(**device) for device in read_devices()] or [
-            DeviceInfo(**entry) for entry in create_simulated_devices()
-        ]
+        self.devices = read_devices() or [DeviceInfo(**entry) for entry in create_simulated_devices()]
 
     def scan(self) -> List[Dict[str, Any]]:
         if self.simulate:
