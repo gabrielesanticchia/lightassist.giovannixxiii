@@ -22,6 +22,7 @@ Open source, zero permessi internet, zero tracking.
 - **Multi-device**: connetti e controlla più strisce contemporaneamente
 - **Scenes**: preset istantanei (max 20), 1 tap per applicare
 - **Macro**: sequenze temporizzate con step, loop, trigger (orari, connect/disconnect, boot)
+- **Editor macro a blocchi**: componi blocchi colore, attesa e flash con tempi e colori modificabili
 - **Music Sync**: FFT → mappatura frequenza→colore (dispositivi con mic o mic telefono)
 - **Riconnessione automatica** in background
 - **Import/Export JSON** per scene e macro
@@ -39,3 +40,15 @@ Open source, zero permessi internet, zero tracking.
 
 ### Flutter
 - Dart 3+, Flutter   
+
+### Editor macro a blocchi
+
+Nella sezione **Macro** puoi comporre e salvare una sequenza visivamente:
+
+- **Colore per...** imposta un colore per il numero di secondi scelto
+- **Attesa** lascia invariato il colore per la durata impostata
+- **Flash** alterna due colori per la durata impostata, con intervallo regolabile
+- usa le frecce o trascina i blocchi per cambiarne l'ordine
+- seleziona il nome di una macro salvata per ricaricarla nell'editor e modificarla
+
+Le macro create nell'editor vengono salvate in `led_controller/data/store.json`.
