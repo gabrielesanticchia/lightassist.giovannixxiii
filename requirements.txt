@@ -1,0 +1,8 @@
+fastapi>=0.111.0
+uvicorn>=0.30.0
+bleak>=0.22.0
+pywebview>=4.4.0
+pydantic>=2.7.0
+numpy>=1.26.0
+sounddevice>=0.4.7
+websockets>=12.0
