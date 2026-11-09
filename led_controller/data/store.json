@@ -1,0 +1,41 @@
+{
+  "devices": [
+    {
+      "mac": "AA:BB:CC:DD:EE:00",
+      "name": "ELK-BLEDOM",
+      "protocol": "ElkBledomProtocol",
+      "rssi": -60,
+      "connected": false
+    },
+    {
+      "mac": "AA:BB:CC:DD:EE:01",
+      "name": "MELK-OA10",
+      "protocol": "MelkProtocol",
+      "rssi": -61,
+      "connected": false
+    },
+    {
+      "mac": "AA:BB:CC:DD:EE:02",
+      "name": "Triones-123",
+      "protocol": "TrionesProtocol",
+      "rssi": -62,
+      "connected": false
+    },
+    {
+      "mac": "AA:BB:CC:DD:EE:03",
+      "name": "SP105E",
+      "protocol": "SPProtocol",
+      "rssi": -63,
+      "connected": false
+    },
+    {
+      "mac": "AA:BB:CC:DD:EE:04",
+      "name": "LEDBLUE-01",
+      "protocol": "ElkBledomProtocol",
+      "rssi": -64,
+      "connected": false
+    }
+  ],
+  "scenes": [],
+  "macros": []
+}

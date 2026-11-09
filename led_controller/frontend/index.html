@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="it">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>LED Strip Controller</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body class="bg-slate-950 text-slate-100 min-h-screen">
+    <div class="flex min-h-screen">
+      <aside class="w-72 bg-slate-900 border-r border-slate-800 p-4">
+        <h1 class="text-2xl font-bold mb-4">LightAssist</h1>
+        <nav class="space-y-2">
+          <button class="nav-btn active" data-view="scan">Scan</button>
+          <button class="nav-btn" data-view="control">Control</button>
+          <button class="nav-btn" data-view="scenes">Scenes</button>
+          <button class="nav-btn" data-view="macro">Macro</button>
+          <button class="nav-btn" data-view="protocol">Protocol Test</button>
+        </nav>
+      </aside>
+
+      <main class="flex-1 p-6 overflow-auto">
+        <section id="scan" class="view-panel active">
+          <div class="card">
+            <div class="flex justify-between items-center mb-4">
+              <h2 class="text-xl font-semibold">Dispositivi BLE</h2>
+              <button id="scanBtn" class="primary-btn">Scan</button>
+            </div>
+            <div id="deviceList" class="space-y-2"></div>
+          </div>
+        </section>
+
+        <section id="control" class="view-panel hidden">
+          <div class="grid lg:grid-cols-2 gap-4">
+            <div class="card">
+              <h2 class="text-xl font-semibold mb-3">Controlli</h2>
+              <label class="block mb-2">Colore</label>
+              <input id="colorPicker" type="color" value="#ff0000" class="w-full h-12" />
+              <label class="block mt-4">Luminosità</label>
+              <input id="brightness" type="range" min="0" max="100" value="100" class="w-full" />
+              <label class="block mt-4">Velocità</label>
+              <input id="speed" type="range" min="0" max="100" value="50" class="w-full" />
+              <label class="block mt-4">Temperatura colore</label>
+              <input id="colorTemp" type="range" min="0" max="100" value="50" class="w-full" />
+              <div class="mt-4 flex gap-3">
+                <button id="powerBtn" class="primary-btn">Power ON</button>
+                <button id="musicBtn" class="secondary-btn">Music Sync</button>
+              </div>
+            </div>
+            <div class="card">
+              <h2 class="text-xl font-semibold mb-3">Effetti</h2>
+              <div id="effectsGrid" class="grid grid-cols-4 gap-2"></div>
+            </div>
+          </div>
+        </section>
+
+        <section id="scenes" class="view-panel hidden">
+          <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Scenes</h2>
+            <div id="sceneList" class="grid md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
+          </div>
+        </section>
+
+        <section id="macro" class="view-panel hidden">
+          <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Macro</h2>
+            <div id="macroList" class="space-y-2"></div>
+          </div>
+        </section>
+
+        <section id="protocol" class="view-panel hidden">
+          <div class="card">
+            <h2 class="text-xl font-semibold mb-3">Protocol Test</h2>
+            <textarea id="hexInput" class="w-full h-40 rounded-lg bg-slate-900 p-3 text-slate-100" placeholder="7E 00 04 F0 00 01 FF 00 EF"></textarea>
+            <div class="mt-4 flex gap-3">
+              <button id="sendHexBtn" class="primary-btn">Send</button>
+            </div>
+            <div id="protocolLog" class="mt-4 bg-slate-900 rounded-lg p-3 min-h-24 text-sm text-slate-300"></div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

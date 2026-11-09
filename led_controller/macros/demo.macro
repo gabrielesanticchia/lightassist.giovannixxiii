@@ -1,0 +1,12 @@
+# Demo macro file for LightAssist
+# File extension .macro is loaded from the project folder
+
+POWER ON
+COLOR 255 0 0
+BRIGHTNESS 80
+WAIT 1000
+COLOR 0 255 0
+WAIT 1000
+COLOR 0 0 255
+WAIT 1000
+POWER OFF
