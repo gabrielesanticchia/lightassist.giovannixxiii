@@ -1,8 +1,8 @@
 # LightAssist
 
 
-Controlla strisce LED Bluetooth Low Energy di terze parti da Android, iOS e Web (PWA).
-Open source, zero permessi internet, zero tracking.
+controllo striscie led bluetooth con macro e varie, leggi dispositivi supportati sotto
+scrivi al 351 944 1873 per ricevere supporto
 
 ## Protocolli supportati
 
@@ -26,7 +26,7 @@ Open source, zero permessi internet, zero tracking.
 - **Music Sync**: FFT → mappatura frequenza→colore (dispositivi con mic o mic telefono)
 - **Riconnessione automatica** in background
 - **Import/Export JSON** per scene e macro
-- **Protocol Test**: invio frame hex arbitrario (debug)
+- **Protocol Test**: invio frame hex (debug)
 
 ## Piattaforme
 
